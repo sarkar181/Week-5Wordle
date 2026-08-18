@@ -1,0 +1,633 @@
+:root {
+  --color-correct: #6aaa64;
+  --color-present: #c9b458;
+  
+  --bg-light: #ffffff;
+  --bg-dark: #121213;
+  
+  --text-light: #1a1a1b;
+  --text-dark: #f8f9fa;
+  
+  --border-empty-light: #d3d6da;
+  --border-empty-dark: #3a3a3c;
+  
+  --border-active-light: #878a8c;
+  --border-active-dark: #565758;
+  
+  --key-bg-light: #e4e6eb;
+  --key-bg-dark: #818384;
+  
+  --key-bg-absent-light: #787c7e;
+  --key-bg-absent-dark: #3a3a3c;
+}
+
+body.light {
+  --background: var(--bg-light);
+  --text-color: var(--text-light);
+  --border-empty: var(--border-empty-light);
+  --border-active: var(--border-active-light);
+  --color-absent: var(--key-bg-absent-light);
+  --key-bg: #d3d6da;
+  --key-bg-active: #b5b7b9;
+  --key-text: #1a1a1b;
+  --header-border: #e3e3e3;
+  --modal-bg: #ffffff;
+  --modal-overlay: rgba(255, 255, 255, 0.7);
+  --modal-shadow: rgba(0, 0, 0, 0.15);
+  --toast-bg: #19191a;
+  --toast-text: #ffffff;
+  --stats-bar-bg: #e3e3e3;
+}
+
+body.dark {
+  --background: var(--bg-dark);
+  --text-color: var(--text-dark);
+  --border-empty: var(--border-empty-dark);
+  --border-active: var(--border-active-dark);
+  --color-absent: var(--color-absent-dark);
+  --key-bg: var(--key-bg-dark);
+  --key-bg-active: #565758;
+  --key-text: #f8f9fa;
+  --header-border: #1a1a1b;
+  --modal-bg: #1c1c1e;
+  --modal-overlay: rgba(0, 0, 0, 0.6);
+  --modal-shadow: rgba(0, 0, 0, 0.4);
+  --toast-bg: #f8f9fa;
+  --toast-text: #121213;
+  --stats-bar-bg: #3a3a3c;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--background);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  user-select: none;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Header Styles */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+  border-bottom: 1px solid var(--header-border);
+  padding: 0 16px;
+  z-index: 10;
+}
+
+header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.header-icons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-color);
+  transition: background-color 0.2s ease, opacity 0.2s;
+}
+
+.icon-btn:hover {
+  background-color: var(--key-bg-active);
+  opacity: 0.85;
+}
+
+.icon-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+/* Main Game Layout */
+.game-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  height: calc(100vh - 50px);
+}
+
+/* Game Board Grid */
+.board-container {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 8px;
+}
+
+.board {
+  display: grid;
+  grid-template-rows: repeat(6, 1fr);
+  gap: 5px;
+  width: 100%;
+  max-width: 350px;
+  aspect-ratio: 5 / 6;
+}
+
+/* Game Board Row */
+.board-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+}
+
+/* Tile Styles */
+.tile {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 2px solid var(--border-empty);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-color);
+  background-color: transparent;
+  transition: border-color 0.1s ease;
+  user-select: none;
+}
+
+/* Pop animation when character typed */
+.tile.pop {
+  animation: popIn 100ms ease-out forwards;
+  border-color: var(--border-active);
+}
+
+/* Shaking animation for invalid words */
+.board-row.shake {
+  animation: shake 250ms ease-in-out;
+}
+
+/* Keyframes for animations */
+@keyframes popIn {
+  0% {
+    transform: scale(0.85);
+  }
+  40% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1.0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  15%, 45%, 75% { transform: translateX(-4px); }
+  30%, 60%, 90% { transform: translateX(4px); }
+}
+
+/* Flipping Animation for evaluations */
+.tile.revealing {
+  animation: flip 550ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.tile.revealing.delay-0 { animation-delay: 0ms; }
+.tile.revealing.delay-1 { animation-delay: 250ms; }
+.tile.revealing.delay-2 { animation-delay: 500ms; }
+.tile.revealing.delay-3 { animation-delay: 750ms; }
+.tile.revealing.delay-4 { animation-delay: 1000ms; }
+
+@keyframes flip {
+  0% {
+    transform: rotateX(0deg);
+    background-color: transparent;
+    border-color: var(--border-empty);
+  }
+  45% {
+    transform: rotateX(90deg);
+    background-color: transparent;
+    border-color: var(--border-empty);
+  }
+  55% {
+    transform: rotateX(90deg);
+    background-color: var(--color-target);
+    border-color: var(--color-target);
+    color: #ffffff;
+  }
+  100% {
+    transform: rotateX(0deg);
+    background-color: var(--color-target);
+    border-color: var(--color-target);
+    color: #ffffff;
+  }
+}
+
+/* Revealing classes that remain after flip */
+.tile.correct {
+  background-color: var(--color-correct);
+  border-color: var(--color-correct);
+  color: #ffffff;
+}
+
+.tile.present {
+  background-color: var(--color-present);
+  border-color: var(--color-present);
+  color: #ffffff;
+}
+
+.tile.absent {
+  background-color: var(--color-absent);
+  border-color: var(--color-absent);
+  color: #ffffff;
+}
+
+/* Bounce animation on win */
+.tile.bounce {
+  animation: bounce 600ms ease-out forwards;
+}
+
+.tile.bounce.delay-0 { animation-delay: 0ms; }
+.tile.bounce.delay-1 { animation-delay: 100ms; }
+.tile.bounce.delay-2 { animation-delay: 200ms; }
+.tile.bounce.delay-3 { animation-delay: 300ms; }
+.tile.bounce.delay-4 { animation-delay: 400ms; }
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-20px);
+  }
+  60% {
+    transform: translateY(-8px);
+  }
+  80% {
+    transform: translateY(-4px);
+  }
+}
+
+/* Keyboard Styles */
+.keyboard-container {
+  width: 100%;
+  padding: 0 8px 8px;
+}
+
+.keyboard-row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.key {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  height: 58px;
+  border-radius: 4px;
+  border: none;
+  background-color: var(--key-bg);
+  color: var(--key-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  max-width: 42px;
+  transition: background-color 0.2s ease, transform 0.05s ease;
+}
+
+.key:active {
+  transform: scale(0.95);
+}
+
+.key.key-wide {
+  flex: 1.5;
+  max-width: 65px;
+  font-size: 12px;
+}
+
+/* Keyboard evaluation states */
+.key.correct {
+  background-color: var(--color-correct) !important;
+  color: #ffffff !important;
+}
+
+.key.present {
+  background-color: var(--color-present) !important;
+  color: #ffffff !important;
+}
+
+.key.absent {
+  background-color: var(--color-absent) !important;
+  color: #ffffff !important;
+  opacity: 0.6;
+}
+
+.key:hover {
+  filter: brightness(0.9);
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 100;
+  pointer-events: none;
+  align-items: center;
+}
+
+.toast {
+  background-color: var(--toast-bg);
+  color: var(--toast-text);
+  padding: 12px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: toastFadeIn 150ms ease-out forwards;
+}
+
+@keyframes toastFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Modal Overlay & Modal Window */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--modal-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  backdrop-filter: blur(2px);
+}
+
+.modal-content {
+  background-color: var(--modal-bg);
+  color: var(--text-color);
+  width: 90%;
+  max-width: 440px;
+  max-height: 85vh;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px var(--modal-shadow);
+  padding: 24px;
+  position: relative;
+  overflow-y: auto;
+  animation: modalSlideUp 250ms cubic-bezier(0.1, 0.8, 0.25, 1) forwards;
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-color);
+  padding: 4px;
+}
+
+.close-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Help Modal Examples */
+.help-section {
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.help-examples {
+  margin-top: 16px;
+  border-top: 1px solid var(--header-border);
+  padding-top: 16px;
+}
+
+.example-item {
+  margin-bottom: 20px;
+}
+
+.example-grid {
+  display: flex;
+  gap: 4px;
+  margin: 8px 0;
+  width: 150px;
+}
+
+.example-grid .tile {
+  font-size: 18px;
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid var(--border-empty);
+}
+
+/* Stats Modal UI */
+.stats-container {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 24px;
+}
+
+.stat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  max-width: 60px;
+  line-height: 1.2;
+}
+
+/* Guess Distribution Graph */
+.distribution-container {
+  margin-bottom: 28px;
+}
+
+.distribution-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.dist-index {
+  width: 12px;
+  font-weight: 700;
+  margin-right: 8px;
+}
+
+.dist-bar {
+  background-color: var(--stats-bar-bg);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 2px 8px 2px 0;
+  text-align: right;
+  min-width: 20px;
+  border-radius: 2px;
+  font-size: 12px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 20px;
+  transition: width 0.5s ease-out;
+}
+
+.dist-bar.highlight {
+  background-color: var(--color-correct);
+}
+
+.action-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  border-top: 1px solid var(--header-border);
+  padding-top: 24px;
+  margin-top: 20px;
+}
+
+.solution-reveal {
+  text-align: center;
+  font-size: 14px;
+}
+
+.solution-reveal span {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-correct);
+  margin-top: 4px;
+}
+
+.btn-primary {
+  background-color: var(--color-correct);
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 12px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: filter 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  filter: brightness(0.9);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+/* Extra Responsive Tweaks for Tiny Screens */
+@media (max-height: 600px) {
+  header {
+    height: 40px;
+  }
+  header h1 {
+    font-size: 20px;
+  }
+  .tile {
+    font-size: 20px;
+  }
+  .key {
+    height: 45px;
+    font-size: 12px;
+  }
+  .key.key-wide {
+    font-size: 10px;
+  }
+}
